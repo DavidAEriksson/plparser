@@ -1,4 +1,10 @@
-use std::{error::Error, ffi::OsStr, fs, path::Path};
+use std::{
+    error::Error,
+    ffi::OsStr,
+    fs::File,
+    io::{self, BufRead},
+    path::Path,
+};
 
 pub struct InputConfig {
     pub file_path: String,
@@ -25,9 +31,21 @@ fn check_extension(file_name: &str) -> Option<&str> {
 }
 
 pub fn run(config: InputConfig) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(config.file_path)?;
-
-    println!("With text:\n{contents}");
+    if let Ok(lines) = read_lines(config.file_path) {
+        for line in lines {
+            if let Ok(ip) = line {
+                println!("{}\n", ip);
+            }
+        }
+    }
 
     Ok(())
+}
+
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where
+    P: AsRef<Path>,
+{
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }

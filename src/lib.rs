@@ -30,6 +30,14 @@ fn check_extension(file_name: &str) -> Option<&str> {
     Path::new(file_name).extension().and_then(OsStr::to_str)
 }
 
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where
+    P: AsRef<Path>,
+{
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
+}
+
 pub fn run(config: InputConfig) -> Result<(), Box<dyn Error>> {
     if let Ok(lines) = read_lines(config.file_path) {
         for line in lines {
@@ -40,12 +48,4 @@ pub fn run(config: InputConfig) -> Result<(), Box<dyn Error>> {
     }
 
     Ok(())
-}
-
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    Ok(io::BufReader::new(file).lines())
 }
